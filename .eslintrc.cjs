@@ -13,5 +13,6 @@ module.exports = {
   rules: {
     "react-refresh/only-export-components": "warn",
     "react/jsx-uses-react": "error",
+    "react/prop-types": 0,
   },
 };
