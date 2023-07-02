@@ -4,6 +4,9 @@ import { UserWrapper } from "../context/userContext";
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Menu from "../pages/Menu";
+import Transaction from "../pages/Transaction";
+import TransactionHistory from "../pages/TransactionHistory";
+import Umkm from "../pages/Umkm";
 import AuthRoute from "./AuthRoute";
 import ProtectedRoute from "./ProtectedRoute";
 
@@ -29,6 +32,12 @@ const Routers = () => {
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<Home />} />
             <Route path="/menu" element={<Menu />} />
+            <Route path="/umkm" element={<Umkm />} />
+            <Route path="/transaction" element={<Transaction />} />
+            <Route
+              path="/transaction-history"
+              element={<TransactionHistory />}
+            />
           </Route>
         </Routes>
       </UserWrapper>

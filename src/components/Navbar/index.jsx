@@ -6,9 +6,10 @@ import { useUserContext } from "../../context/userContext";
 
 const navigation = [
   { name: "Dashboard", href: "/" },
-  { name: "UMKM", href: "#" },
+  { name: "UMKM", href: "/umkm" },
   { name: "Menu", href: "/menu" },
-  { name: "Transaksi", href: "#" },
+  { name: "Transaksi", href: "/transaction" },
+  { name: "Riwayat Transaksi", href: "/transaction-history" },
 ];
 
 function classNames(...classes) {
