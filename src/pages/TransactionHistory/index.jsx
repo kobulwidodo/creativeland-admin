@@ -53,7 +53,7 @@ const TransactionHistory = () => {
             <h4>Notes : {selectedData.notes}</h4>
             <h4>
               Status Pesanan :{" "}
-              {selectedData.status === "paid" ? "Dibayar" : "?"}
+              {selectedData.status === "done" ? "Selesai" : "?"}
             </h4>
             <h4>Total Harga : Rp {selectedData.price}</h4>
           </div>
