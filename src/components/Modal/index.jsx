@@ -32,12 +32,14 @@ const Modal = ({
             <div className="relative p-6 flex-auto">{children}</div>
             {/*footer*/}
             <div className="flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b gap-x-5">
-              <button
-                className="bg-green-400 text-white active:bg-green-400 font-bold uppercase text-xs px-3 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none ease-linear transition-all duration-150"
-                type="submit"
-              >
-                {confirmText}
-              </button>
+              {confirmText ? (
+                <button
+                  className="bg-green-400 text-white active:bg-green-400 font-bold uppercase text-xs px-3 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none ease-linear transition-all duration-150"
+                  type="submit"
+                >
+                  {confirmText}
+                </button>
+              ) : null}
               <button
                 className="bg-red-400 text-white active:bg-red-400 font-bold uppercase text-xs px-3 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none ease-linear transition-all duration-150"
                 type="button"

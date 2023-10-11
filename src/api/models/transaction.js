@@ -11,3 +11,13 @@ export const completeTransaction = (umkmId, transactionId) => {
     `/v1/umkm/${umkmId}/transaction/${transactionId}/mark-as-done`
   );
 };
+
+export const getTransactionAdmin = (orderId, limit, page) => {
+  return coreApi.get(
+    `/v1/admin/transactions?limit=${limit}&page=${page}&order_id=${orderId}`
+  );
+};
+
+export const getRecapTransaction = (date) => {
+  return coreApi.get(`/v1/admin/transactions/recap?date=${date}`);
+};

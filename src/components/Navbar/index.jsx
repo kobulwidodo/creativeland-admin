@@ -4,20 +4,29 @@ import { Fragment } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useUserContext } from "../../context/userContext";
 
-const navigation = [
-  { name: "Dashboard", href: "/" },
-  { name: "UMKM", href: "/umkm" },
-  { name: "Menu", href: "/menu" },
-  { name: "Transaksi", href: "/transaction" },
-  { name: "Riwayat Transaksi", href: "/transaction-history" },
-];
-
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
 const Navbar = () => {
-  const { logout } = useUserContext();
+  const { logout, userInfo } = useUserContext();
+
+  const navigation = userInfo?.IsAdmin
+    ? [
+        { name: "Dashboard", href: "/" },
+        { name: "List UMKM", href: "/admin/umkm" },
+        { name: "List Transaksi", href: "/admin/transaction" },
+        { name: "Rekap Penjualan", href: "/admin/sales-recap" },
+        { name: "Withdraw", href: "/admin/withdraw" },
+      ]
+    : [
+        { name: "Dashboard", href: "/" },
+        { name: "UMKM", href: "/umkm" },
+        { name: "Menu", href: "/menu" },
+        { name: "Transaksi", href: "/transaction" },
+        { name: "Riwayat Transaksi", href: "/transaction-history" },
+      ];
+
   return (
     <Disclosure as="nav" className="bg-white">
       {({ open }) => (

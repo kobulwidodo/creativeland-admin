@@ -1,25 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { getTransaction } from "../../api/models/transaction";
-import Modal from "../../components/Modal";
-import Navbar from "../../components/Navbar";
-import { useUserContext } from "../../context/userContext";
-import useDebounce from "../../hooks/useDebounce";
-import useSnackbar from "../../hooks/useSnackbar";
+import { getTransactionAdmin } from "../../../api/models/transaction";
+import Modal from "../../../components/Modal";
+import Navbar from "../../../components/Navbar";
+import useDebounce from "../../../hooks/useDebounce";
+import useSnackbar from "../../../hooks/useSnackbar";
 
-const TransactionHistory = () => {
-  const [transactionData, setTransactionData] = useState([]);
+const TransactionAdmin = () => {
+  const [transaction, setTransaction] = useState([]);
   const [query, setQuery] = useState("");
   const [selectedData, setSelectedData] = useState({});
   const [showModal, setShowModal] = useState(false);
-  const { userInfo } = useUserContext();
+  const [currentPage, setCurrentPage] = useState(1);
   const snackbar = useSnackbar();
 
-  const fetchTransaction = async (umkmId) => {
+  const fetchTransactionAdmin = async () => {
     try {
-      const res = await getTransaction(umkmId, "done", query);
-      setTransactionData(res.data.data);
+      const res = await getTransactionAdmin(query, 10, currentPage);
+      setTransaction(res.data.data);
     } catch (error) {
       snackbar.error(error.response?.data.meta.message);
+      if (currentPage != 1) {
+        setCurrentPage(currentPage - 1);
+      }
     }
   };
 
@@ -28,13 +30,11 @@ const TransactionHistory = () => {
     setShowModal(true);
   };
 
-  useDebounce(() => fetchTransaction(userInfo?.UmkmID), 1000, [query]);
+  useDebounce(() => fetchTransactionAdmin(), 1000, [query]);
 
   useEffect(() => {
-    if (userInfo?.UmkmID) {
-      fetchTransaction(userInfo?.UmkmID);
-    }
-  }, [userInfo?.UmkmID]);
+    fetchTransactionAdmin();
+  }, [currentPage]);
 
   return (
     <>
@@ -53,19 +53,34 @@ const TransactionHistory = () => {
             <h4>Notes : {selectedData.notes}</h4>
             <h4>
               Status Pesanan :{" "}
-              {selectedData.status === "done" ? "Selesai" : "?"}
+              {selectedData.status === "success"
+                ? "Dibayar"
+                : selectedData.status === "pending"
+                ? "Belum dibayar"
+                : "?"}
             </h4>
             <h4>Total Harga : Rp {selectedData.price}</h4>
           </div>
           <hr className="my-5" />
           {selectedData.item_menus.map((item, key) => {
             return (
-              <div className="flex justify-between" key={key}>
-                <div className="gap-y-2">
-                  <h3 className="text-lg">{item.name}</h3>
-                  <p>{item.price_per_item}</p>
+              <div className="flex justify-between mb-5" key={key}>
+                <div className="">
+                  <h1 className="font-medium text-lg">{item.umkm_name}</h1>
+                  <h3>{item.name}</h3>
+                  <p>
+                    Status :{" "}
+                    {item.status === "paid"
+                      ? "Diproses"
+                      : item.status === "done"
+                      ? "Selesai"
+                      : "?"}
+                  </p>
                 </div>
-                <h3>x{item.qty}</h3>
+                <div className="text-right">
+                  <h3 className="">x{item.qty}</h3>
+                  <h3>{item.price}</h3>
+                </div>
               </div>
             );
           })}
@@ -90,7 +105,7 @@ const TransactionHistory = () => {
             </tr>
           </thead>
           <tbody>
-            {transactionData.map((item, key) => {
+            {transaction.map((item, key) => {
               return (
                 <tr key={key} className={key % 2 == 1 ? "bg-gray-100" : ""}>
                   <td className="text-center py-5">{item.midtrans_order_id}</td>
@@ -109,9 +124,34 @@ const TransactionHistory = () => {
             })}
           </tbody>
         </table>
+        <div className="flex items-center justify-between bg-white px-4 py-3 sm:px-6 mt-5">
+          <div className="flex flex-1 justify-between items-center">
+            <button
+              onClick={() => {
+                if (currentPage != 1) {
+                  setCurrentPage(currentPage - 1);
+                }
+              }}
+              href="#"
+              className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Previous
+            </button>
+            <p>Page : {currentPage}</p>
+            <button
+              onClick={() => {
+                setCurrentPage(currentPage + 1);
+              }}
+              href="#"
+              className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Next
+            </button>
+          </div>
+        </div>
       </div>
     </>
   );
 };
 
-export default TransactionHistory;
+export default TransactionAdmin;

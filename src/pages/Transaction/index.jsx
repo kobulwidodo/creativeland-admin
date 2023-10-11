@@ -99,7 +99,7 @@ const Transaction = () => {
               >
                 <div className="">
                   <h1>Pesanan atas nama {item.buyer_name}</h1>
-                  <p className="text-sm">3 Menit yang lalu</p>
+                  <p className="text-sm">{item.created_at}</p>
                 </div>
                 <button
                   onClick={() => handleOnClickTransaction(item)}

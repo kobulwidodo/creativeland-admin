@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { coreApi } from "../api";
 import { getUser } from "../api/models/user";
 import useSnackbar from "../hooks/useSnackbar";
@@ -21,13 +20,13 @@ export const UserWrapper = ({ children }) => {
   const [userInfo, setUserInfo] = useState(defaultValue.userInfo);
 
   const snackbar = useSnackbar();
-  const navigate = useNavigate();
 
   const login = (token) => {
     coreApi.interceptors.request.use((config) => {
       config.headers.Authorization = `Bearer ${token}`;
       return config;
     });
+    console.log(token);
     localStorage.setItem("cl_admin_token", token);
     setIsAuthenticated(true);
   };
@@ -38,7 +37,6 @@ export const UserWrapper = ({ children }) => {
     localStorage.removeItem("cl_admin_token");
     coreApi.defaults.headers.common["Authorization"] = "";
     snackbar.success("Successfully logout");
-    navigate("/login");
   };
 
   const fetchUser = async () => {
@@ -46,6 +44,7 @@ export const UserWrapper = ({ children }) => {
       const res = await getUser();
       if (res.data.data) {
         setUserInfo(res.data.data);
+        console.log(res.data.data);
       }
     } catch (error) {
       snackbar.error(error.response?.meta.message);
