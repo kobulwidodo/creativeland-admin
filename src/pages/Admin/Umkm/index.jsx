@@ -19,6 +19,8 @@ const UmkmAdmin = () => {
   const [umkmData, setUmkmData] = useState([]);
   const [query, setQuery] = useState("");
   const [showModalCreate, setShowModalCreate] = useState(false);
+  const [showModalUpdate, setShowModalUpdate] = useState(false);
+  const [selectedData, setSelectedData] = useState({});
   const [refreshData, setRefreshData] = useState(false);
   const snackbar = useSnackbar();
 
@@ -40,6 +42,21 @@ const UmkmAdmin = () => {
     } catch (error) {
       snackbar.error(error.response?.data.meta.message);
     }
+  };
+
+  const handleUpdateUMKM = async (d) => {
+    try {
+      console.log(d);
+      setRefreshData(!refreshData);
+      setShowModalCreate(false);
+    } catch (error) {
+      snackbar.error(error.response?.data.meta.message);
+    }
+  };
+
+  const handleOnClickDetail = (item) => {
+    setSelectedData(item);
+    setShowModalUpdate(true);
   };
 
   useDebounce(() => fetchUmkm(), 1000, [query]);
@@ -103,6 +120,31 @@ const UmkmAdmin = () => {
           </div>
         </Modal>
       ) : null}
+      {showModalUpdate ? (
+        <Modal
+          headerText="Ubdah Data UMKM"
+          confirmText="Ubah"
+          handleSubmit={handleSubmit(handleUpdateUMKM)}
+          setShowModalClose={() => setShowModalUpdate(false)}
+        >
+          <div className="mb-5">
+            <input
+              type="text"
+              className="px-3 py-3 placeholder-slate-300 text-slate-600 relative bg-white bg-white rounded text-sm border-0 shadow outline-none focus:outline-none focus:ring w-full"
+              placeholder="Masukan Nama UMKM"
+              {...register("name", { value: selectedData.Name })}
+            />
+          </div>
+          <div className="mb-5">
+            <input
+              type="text"
+              className="px-3 py-3 placeholder-slate-300 text-slate-600 relative bg-white bg-white rounded text-sm border-0 shadow outline-none focus:outline-none focus:ring w-full"
+              placeholder="Masukan Slogan UMKM"
+              {...register("slogan", { value: selectedData.Slogan })}
+            />
+          </div>
+        </Modal>
+      ) : null}
       <Navbar />
       <div className="max-w-7xl mx-auto py-5 px-4">
         <div className="flex justify-between items-center mb-5">
@@ -138,7 +180,7 @@ const UmkmAdmin = () => {
                   <td className="px-2">{item.Slogan}</td>
                   <td className="text-center p-2">
                     <button
-                      // onClick={() => handleOnClickDetail(item)}
+                      onClick={() => handleOnClickDetail(item)}
                       className="bg-green-400 text-white active:bg-green-400 font-bold uppercase text-xs px-2 py-1 rounded shadow hover:shadow-md outline-none focus:outline-none ease-linear transition-all duration-150 self-auto"
                     >
                       Kelola

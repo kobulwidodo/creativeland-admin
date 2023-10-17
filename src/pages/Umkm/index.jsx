@@ -25,7 +25,7 @@ const Umkm = () => {
 
   const handleUpdateUmkm = async (d) => {
     try {
-      const res = await updateUmkm(userInfo.ID, d);
+      const res = await updateUmkm(userInfo.UmkmID, d);
       snackbar.success(res.data.meta.message);
       setRefreshData(!refreshData);
       setShowModalUpdate(false);

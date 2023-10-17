@@ -21,3 +21,7 @@ export const getTransactionAdmin = (orderId, limit, page) => {
 export const getRecapTransaction = (date) => {
   return coreApi.get(`/v1/admin/transactions/recap?date=${date}`);
 };
+
+export const markAsPaid = (order_id) => {
+  return coreApi.put(`/v1/admin/transaction/${order_id}/mark-as-paid`);
+};

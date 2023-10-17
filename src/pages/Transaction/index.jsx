@@ -90,6 +90,12 @@ const Transaction = () => {
       <div className="max-w-7xl mx-auto py-5 px-4">
         <h1 className="text-3xl">Transaksi Aktif</h1>
         <p>Segera proses pesanan dibawah ya!</p>
+        {userInfo?.UmkmStatus !== "open" ? (
+          <p className="px-3 py-1 rounded-md bg-red-200 mt-5">
+            Status toko kamu tutup, silahkan buka toko di dashboard untuk
+            memulai berjualan ^__^
+          </p>
+        ) : null}
         <div className="mt-7 flex flex-col gap-y-5">
           {transactionData.map((item, key) => {
             return (

@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { getTransactionAdmin } from "../../../api/models/transaction";
+import { useForm } from "react-hook-form";
+import {
+  getTransactionAdmin,
+  markAsPaid,
+} from "../../../api/models/transaction";
 import Modal from "../../../components/Modal";
 import Navbar from "../../../components/Navbar";
 import useDebounce from "../../../hooks/useDebounce";
 import useSnackbar from "../../../hooks/useSnackbar";
 
 const TransactionAdmin = () => {
+  const { register, handleSubmit, reset } = useForm();
   const [transaction, setTransaction] = useState([]);
   const [query, setQuery] = useState("");
+  const [refreshData, setRefreshData] = useState(false);
   const [selectedData, setSelectedData] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -25,6 +31,20 @@ const TransactionAdmin = () => {
     }
   };
 
+  const handleUpdateStatus = async (d) => {
+    if (d.status === "success") {
+      try {
+        const res = await markAsPaid(d.order_id);
+        setRefreshData(!refreshData);
+        setShowModal(false);
+        reset();
+        snackbar.success(res.data.meta.message);
+      } catch (error) {
+        snackbar.error(error.response?.data.meta.message);
+      }
+    }
+  };
+
   const handleOnClickDetail = (item) => {
     setSelectedData(item);
     setShowModal(true);
@@ -34,18 +54,16 @@ const TransactionAdmin = () => {
 
   useEffect(() => {
     fetchTransactionAdmin();
-  }, [currentPage]);
+  }, [currentPage, refreshData]);
 
   return (
     <>
       {showModal ? (
         <Modal
           headerText="Detail Pesanan"
-          confirmText="Ok"
+          confirmText="Simpan"
           setShowModalClose={() => setShowModal(false)}
-          handleSubmit={() => {
-            setShowModal(false);
-          }}
+          handleSubmit={handleSubmit(handleUpdateStatus)}
         >
           <div className="">
             <h4>Pembeli : {selectedData.buyer_name}</h4>
@@ -74,6 +92,8 @@ const TransactionAdmin = () => {
                       ? "Diproses"
                       : item.status === "done"
                       ? "Selesai"
+                      : item.status === "unpaid"
+                      ? "Belum Dibayar"
                       : "?"}
                   </p>
                 </div>
@@ -84,6 +104,41 @@ const TransactionAdmin = () => {
               </div>
             );
           })}
+          {selectedData.status === "pending" ? (
+            <>
+              <hr />
+              <p className="my-3">Ubah Status Pembayaran</p>
+              <input
+                type="text"
+                hidden
+                value={selectedData.midtrans_order_id}
+                {...register("order_id")}
+              />
+              <select
+                className="appearance-none px-3 py-3 placeholder-slate-300 text-slate-600 relative bg-white bg-white rounded text-sm border-0 shadow outline-none focus:outline-none focus:ring w-full"
+                defaultValue={selectedData.status}
+                {...register("status", { required: true })}
+              >
+                <option value="pending">Belum Dibayar</option>
+                <option value="success">Dibayar</option>
+              </select>
+              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                <svg
+                  className="h-5 w-5 text-gray-400"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <path
+                    d="M7 7l3-3 3 3m0 6l-3 3-3-3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="1.5"
+                  ></path>
+                </svg>
+              </div>
+            </>
+          ) : null}
         </Modal>
       ) : null}
       <Navbar />

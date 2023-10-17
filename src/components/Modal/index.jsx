@@ -45,7 +45,7 @@ const Modal = ({
                 type="button"
                 onClick={setShowModalClose}
               >
-                Tutup
+                Kembali
               </button>
             </div>
           </form>

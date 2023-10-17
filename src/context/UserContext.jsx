@@ -28,6 +28,7 @@ export const UserWrapper = ({ children }) => {
     });
     console.log(token);
     localStorage.setItem("cl_admin_token", token);
+    fetchUser();
     setIsAuthenticated(true);
   };
 
