@@ -7,11 +7,20 @@ const MenuCard = ({
   pricePerItem,
   onClickEdit,
   onClickDelete,
+  imgPath,
 }) => {
   return (
     <div className="mb-10">
       <div className="flex gap-x-5">
-        <img src="https://placehold.co/60" alt="" />
+        <img
+          src={
+            imgPath
+              ? `http://localhost:8080/${imgPath}`
+              : "https://placehold.co/60"
+          }
+          alt=""
+          className="object-cover w-20 h-20"
+        />
         <div className="flex-auto">
           <h2 className="text-slate-700 leading-relaxed">{menuName}</h2>
           <h2 className="text-slate-700 text-sm leading-relaxed">

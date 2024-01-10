@@ -112,7 +112,7 @@ const Home = () => {
               </div>
             </div>
             <p className="mb-3">
-              Jangan lupa untuk tutup toko jika sudah selesai berjualan ^_^
+              Jangan lupa untuk tutup toko jika sudah selesai berjualan
             </p>
             <hr />
           </div>
@@ -130,11 +130,31 @@ const Home = () => {
         <div className="flex gap-x-4">
           <div className="w-full rounded-xl px-3 py-5 shadow-sm">
             <p>Total Penghasilan Hari ini</p>
-            <p className="text-xl mt-2">Rp {data.TotalTodayRevenue}</p>
+            <p className="text-xl mt-2">
+              Rp{" "}
+              {data.TotalTodayRevenue &&
+                data.TotalTodayRevenue.toLocaleString()}
+            </p>
+            <span className="text-sm mt-1">
+              {" "}
+              Rp{" "}
+              {data.TotalTodayRevenue &&
+                Math.floor(data.TotalTodayRevenue * 0.83).toLocaleString()}
+            </span>
           </div>
           <div className="w-full rounded-xl px-3 py-5 shadow-sm">
             <p>Total Penghasilan Kemarin</p>
-            <p className="text-xl mt-2">Rp {data.TotalYesterdayRevenue}</p>
+            <p className="text-xl mt-2">
+              Rp{" "}
+              {data.TotalYesterdayRevenue &&
+                data.TotalYesterdayRevenue.toLocaleString()}
+            </p>
+            <span className="text-sm mt-1">
+              {" "}
+              Rp{" "}
+              {data.TotalYesterdayRevenue &&
+                Math.floor(data.TotalYesterdayRevenue * 0.83).toLocaleString()}
+            </span>
           </div>
         </div>
         <div className="flex gap-x-4">
@@ -150,11 +170,31 @@ const Home = () => {
         <div className="flex gap-x-4">
           <div className="w-full rounded-xl px-3 py-5 shadow-sm">
             <p>Total Penghasilan Bulan ini</p>
-            <p className="text-xl mt-2">Rp {data.TotalMonthRevenue}</p>
+            <p className="text-xl mt-2">
+              Rp{" "}
+              {data.TotalMonthRevenue &&
+                data.TotalMonthRevenue.toLocaleString()}
+            </p>
+            <span className="text-sm mt-1">
+              {" "}
+              Rp{" "}
+              {data.TotalMonthRevenue &&
+                Math.floor(data.TotalMonthRevenue * 0.83).toLocaleString()}
+            </span>
           </div>
           <div className="w-full rounded-xl px-3 py-5 shadow-sm">
             <p>Total Penghasilan Bulan Lalu</p>
-            <p className="text-xl mt-2">Rp {data.TotalLastMonthRevenue}</p>
+            <p className="text-xl mt-2">
+              Rp{" "}
+              {data.TotalLastMonthRevenue &&
+                data.TotalLastMonthRevenue.toLocaleString()}
+            </p>
+            <span className="text-sm mt-1">
+              {" "}
+              Rp{" "}
+              {data.TotalLastMonthRevenue &&
+                Math.floor(data.TotalLastMonthRevenue * 0.83).toLocaleString()}
+            </span>
           </div>
         </div>
       </div>

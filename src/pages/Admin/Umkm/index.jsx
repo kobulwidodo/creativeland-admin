@@ -4,6 +4,7 @@ import {
   createUmkm,
   getListUmkm,
   registerUmkmAcc,
+  updateUmkm,
 } from "../../../api/models/umkm";
 import Modal from "../../../components/Modal";
 import Navbar from "../../../components/Navbar";
@@ -14,7 +15,13 @@ const UmkmAdmin = () => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
+  } = useForm();
+  const {
+    register: registerUpdate,
+    handleSubmit: handleSubmitUpdate,
+    reset: resetUpdate,
   } = useForm();
   const [umkmData, setUmkmData] = useState([]);
   const [query, setQuery] = useState("");
@@ -35,10 +42,16 @@ const UmkmAdmin = () => {
 
   const handleRegisterUMKM = async (d) => {
     try {
-      const res = await createUmkm(d.name, d.slogan);
+      const res = await createUmkm(
+        d.name,
+        d.slogan,
+        d.owner_name,
+        d.owner_phone_number
+      );
       await registerUmkmAcc(d.name, d.password, res.data.data.ID, d.username);
       setRefreshData(!refreshData);
       setShowModalCreate(false);
+      reset();
     } catch (error) {
       snackbar.error(error.response?.data.meta.message);
     }
@@ -46,9 +59,11 @@ const UmkmAdmin = () => {
 
   const handleUpdateUMKM = async (d) => {
     try {
-      console.log(d);
+      const res = await updateUmkm(selectedData.ID, d);
       setRefreshData(!refreshData);
-      setShowModalCreate(false);
+      setShowModalUpdate(false);
+      resetUpdate();
+      snackbar.success(res.data.meta.message);
     } catch (error) {
       snackbar.error(error.response?.data.meta.message);
     }
@@ -100,6 +115,32 @@ const UmkmAdmin = () => {
             <input
               type="text"
               className="px-3 py-3 placeholder-slate-300 text-slate-600 relative bg-white bg-white rounded text-sm border-0 shadow outline-none focus:outline-none focus:ring w-full"
+              placeholder="Masukan Nama Pemilik"
+              {...register("owner_name", { required: true })}
+            />
+            {errors.owner_name && (
+              <span className="text-sm text-red-600">
+                Nama Pemilik wajib diisi
+              </span>
+            )}
+          </div>
+          <div className="mb-5">
+            <input
+              type="text"
+              className="px-3 py-3 placeholder-slate-300 text-slate-600 relative bg-white bg-white rounded text-sm border-0 shadow outline-none focus:outline-none focus:ring w-full"
+              placeholder="Masukan Nomor HP Pemilik"
+              {...register("owner_phone_number", { required: true })}
+            />
+            {errors.owner_phone_number && (
+              <span className="text-sm text-red-600">
+                Nomor HP Pemilik wajib diisi
+              </span>
+            )}
+          </div>
+          <div className="mb-5">
+            <input
+              type="text"
+              className="px-3 py-3 placeholder-slate-300 text-slate-600 relative bg-white bg-white rounded text-sm border-0 shadow outline-none focus:outline-none focus:ring w-full"
               placeholder="Masukan Username UMKM"
               {...register("username", { required: true })}
             />
@@ -124,7 +165,7 @@ const UmkmAdmin = () => {
         <Modal
           headerText="Ubdah Data UMKM"
           confirmText="Ubah"
-          handleSubmit={handleSubmit(handleUpdateUMKM)}
+          handleSubmit={handleSubmitUpdate(handleUpdateUMKM)}
           setShowModalClose={() => setShowModalUpdate(false)}
         >
           <div className="mb-5">
@@ -132,7 +173,7 @@ const UmkmAdmin = () => {
               type="text"
               className="px-3 py-3 placeholder-slate-300 text-slate-600 relative bg-white bg-white rounded text-sm border-0 shadow outline-none focus:outline-none focus:ring w-full"
               placeholder="Masukan Nama UMKM"
-              {...register("name", { value: selectedData.Name })}
+              {...registerUpdate("name", { value: selectedData.Name })}
             />
           </div>
           <div className="mb-5">
@@ -140,7 +181,27 @@ const UmkmAdmin = () => {
               type="text"
               className="px-3 py-3 placeholder-slate-300 text-slate-600 relative bg-white bg-white rounded text-sm border-0 shadow outline-none focus:outline-none focus:ring w-full"
               placeholder="Masukan Slogan UMKM"
-              {...register("slogan", { value: selectedData.Slogan })}
+              {...registerUpdate("slogan", { value: selectedData.Slogan })}
+            />
+          </div>
+          <div className="mb-5">
+            <input
+              type="text"
+              className="px-3 py-3 placeholder-slate-300 text-slate-600 relative bg-white bg-white rounded text-sm border-0 shadow outline-none focus:outline-none focus:ring w-full"
+              placeholder="Masukan Nama Pemilik"
+              {...registerUpdate("owner_name", {
+                value: selectedData.OwnerName,
+              })}
+            />
+          </div>
+          <div className="mb-5">
+            <input
+              type="text"
+              className="px-3 py-3 placeholder-slate-300 text-slate-600 relative bg-white bg-white rounded text-sm border-0 shadow outline-none focus:outline-none focus:ring w-full"
+              placeholder="Masukan Nomor HP Pemilik"
+              {...registerUpdate("owner_phone_number", {
+                value: selectedData.OwnerPhoneNumber,
+              })}
             />
           </div>
         </Modal>
@@ -148,17 +209,17 @@ const UmkmAdmin = () => {
       <Navbar />
       <div className="max-w-7xl mx-auto py-5 px-4">
         <div className="flex justify-between items-center mb-5">
-          <h1 className="text-2xl mb-3">Daftar UMKM</h1>
+          <h1 className="text-2xl mb-3">Daftar Tenant</h1>
           <button
             className="bg-green-400 text-white active:bg-green-400 font-bold uppercase text-xs px-2 py-1 rounded shadow hover:shadow-md outline-none focus:outline-none ease-linear transition-all duration-150 self-auto"
             onClick={() => setShowModalCreate(true)}
           >
-            Tambah UMKM
+            Tambah Tenant
           </button>
         </div>
         <input
           type="text"
-          placeholder="Cari UMKM"
+          placeholder="Cari Tenant"
           className="px-5 py-2 rounded-lg w-full border"
           onChange={(e) => setQuery(e.target.value)}
         />

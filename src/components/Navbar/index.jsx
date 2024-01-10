@@ -14,15 +14,15 @@ const Navbar = () => {
   const navigation = userInfo?.IsAdmin
     ? [
         { name: "Dashboard", href: "/" },
-        { name: "List UMKM", href: "/admin/umkm" },
+        { name: "List Tenant", href: "/admin/umkm" },
         { name: "List Transaksi", href: "/admin/transaction" },
         { name: "Rekap Penjualan", href: "/admin/sales-recap" },
         { name: "Withdraw", href: "/admin/withdraw" },
       ]
     : [
         { name: "Dashboard", href: "/" },
-        { name: "UMKM", href: "/umkm" },
-        { name: "Menu", href: "/menu" },
+        { name: "Kelola Tenant", href: "/umkm" },
+        { name: "Kelola Menu", href: "/menu" },
         { name: "Transaksi", href: "/transaction" },
         { name: "Riwayat Transaksi", href: "/transaction-history" },
       ];

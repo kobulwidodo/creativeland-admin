@@ -94,6 +94,8 @@ const TransactionAdmin = () => {
                       ? "Selesai"
                       : item.status === "unpaid"
                       ? "Belum Dibayar"
+                      : item.status === "cancel"
+                      ? "Dibatalkan"
                       : "?"}
                   </p>
                 </div>

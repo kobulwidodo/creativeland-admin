@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { getListUmkm, updateUmkm } from "../../../api/models/umkm";
-import { createWithdraw, getWithdrawList } from "../../../api/models/withdraw";
+import {
+  createWithdraw,
+  getWithdrawList,
+  updateWithdraw,
+} from "../../../api/models/withdraw";
 import Modal from "../../../components/Modal";
 import Navbar from "../../../components/Navbar";
 import useSnackbar from "../../../hooks/useSnackbar";
@@ -13,13 +17,20 @@ const Withdraw = () => {
     formState: { errors },
     reset,
   } = useForm();
+  const {
+    register: registerUpdate,
+    handleSubmit: handleSubmitUpdate,
+    reset: resetUpdate,
+  } = useForm();
   const [withdrawData, setWithdrawData] = useState([]);
   const [umkmData, setUmkmData] = useState([]);
   const [showModalCreate, setShowModalCreate] = useState(false);
+  const [showModalDetail, setShowModalDetail] = useState(false);
   const [refreshData, setRefreshData] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterToday, setIsFilterToday] = useState(false);
   const [selectedData, setSelectedData] = useState({});
+  const [selectedDataDetail, setSelectedDataDetail] = useState({});
   const [dateFilter, setDateFilter] = useState("");
   const snackbar = useSnackbar();
 
@@ -48,7 +59,13 @@ const Withdraw = () => {
 
   const handleAddWithdraw = async (d) => {
     try {
-      const res = await createWithdraw(d.umkm_id, d.amount, d.date);
+      const res = await createWithdraw(
+        d.umkm_id,
+        d.amount,
+        d.date,
+        d.status_withdraw,
+        d.method
+      );
       if (d.status === "close") {
         await updateUmkm(d.umkm_id, { status: d.status });
       }
@@ -79,6 +96,29 @@ const Withdraw = () => {
     setCurrentPage(currentPage + 1);
   };
 
+  const handleOnClickDetail = (item) => {
+    setShowModalDetail(true);
+    console.log(item);
+    setSelectedDataDetail(item);
+  };
+
+  const handleUpdateStatus = async (d) => {
+    if (selectedDataDetail.Status !== "done") {
+      try {
+        const res = await updateWithdraw(d.status, selectedDataDetail.ID);
+        setShowModalDetail(false);
+        resetUpdate();
+        snackbar.success(res.data.meta.message);
+        setRefreshData(!refreshData);
+        setSelectedDataDetail({});
+      } catch (error) {
+        snackbar.error(error.response?.data.meta.message);
+      }
+    } else {
+      setShowModalDetail(false);
+    }
+  };
+
   useEffect(() => {
     fetchWithdraw();
     fetchUmkm();
@@ -86,6 +126,77 @@ const Withdraw = () => {
 
   return (
     <>
+      {showModalDetail ? (
+        <Modal
+          headerText="Detail Withdraw"
+          setShowModalClose={() => setShowModalDetail(false)}
+          handleSubmit={handleSubmitUpdate(handleUpdateStatus)}
+          confirmText="Simpan"
+        >
+          <table className="w-full border mt-5">
+            <thead className=""></thead>
+            <tbody className="">
+              <tr className="border">
+                <th>Tanggal</th>
+                <td>{selectedDataDetail.Date}</td>
+              </tr>
+              <tr className="border">
+                <th>Tenant</th>
+                <td>{selectedDataDetail.UmkmName}</td>
+              </tr>
+              <tr className="border">
+                <th>Jumlah</th>
+                <td>{selectedDataDetail.Amount}</td>
+              </tr>
+              <tr className="border">
+                <th>Metode Withdraw</th>
+                <td>{selectedDataDetail.Method}</td>
+              </tr>
+              <tr className="border">
+                <th>Status Withdraw</th>
+                <td>
+                  {selectedDataDetail.Status === "process"
+                    ? "Proses"
+                    : selectedDataDetail.Status === "done"
+                    ? "Selesai"
+                    : "undefined"}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          {selectedDataDetail.Status === "process" ? (
+            <div className="mt-5">
+              <h1 className="mb-3">Ubah Status Withdraw</h1>
+              <div className="relative">
+                <select
+                  className="appearance-none px-3 py-3 placeholder-slate-300 text-slate-600 relative bg-white bg-white rounded text-sm border-0 shadow outline-none focus:outline-none focus:ring w-full"
+                  defaultValue={selectedDataDetail.Status}
+                  disabled={selectedDataDetail.Status === "close"}
+                  {...registerUpdate("status", { required: true })}
+                >
+                  <option value="process">Proses</option>
+                  <option value="done">Selesai</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                  <svg
+                    className="h-5 w-5 text-gray-400"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path
+                      d="M7 7l3-3 3 3m0 6l-3 3-3-3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="1.5"
+                    ></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          ) : null}
+        </Modal>
+      ) : null}
       {showModalCreate ? (
         <Modal
           headerText="Tambah Withdraw Baru"
@@ -135,8 +246,8 @@ const Withdraw = () => {
                 ></path>
               </svg>
             </div>
-            {errors.date && (
-              <span className="text-sm text-red-600">Tanggal wajib diisi</span>
+            {errors.umkm_id && (
+              <span className="text-sm text-red-600">Umkm wajib diisi</span>
             )}
           </div>
           <div className="mb-5">
@@ -159,6 +270,42 @@ const Withdraw = () => {
             />
             {errors.amount && (
               <span className="text-sm text-red-600">Jumlah wajib diisi</span>
+            )}
+          </div>
+          <div className="mb-5">
+            <select
+              className="appearance-none px-3 py-3 placeholder-slate-300 text-slate-600 relative bg-white bg-white rounded text-sm border-0 shadow outline-none focus:outline-none focus:ring w-full"
+              defaultValue="Pilih Status Withdraw"
+              {...register("status_withdraw", { required: true })}
+            >
+              <option disabled value={"Pilih Status Withdraw"}>
+                Pilih Status Withdraw
+              </option>
+              <option value="done">Selesai</option>
+              <option value="process">Proses</option>
+            </select>
+            {errors.status_withdraw && (
+              <span className="text-sm text-red-600">
+                Status Withdraw wajib diisi
+              </span>
+            )}
+          </div>
+          <div className="mb-5">
+            <select
+              className="appearance-none px-3 py-3 placeholder-slate-300 text-slate-600 relative bg-white bg-white rounded text-sm border-0 shadow outline-none focus:outline-none focus:ring w-full"
+              defaultValue="Pilih Metode Withdraw"
+              {...register("method", { required: true })}
+            >
+              <option disabled value={"Pilih Metode Withdraw"}>
+                Pilih Metode Withdraw
+              </option>
+              <option value="cash">Cash</option>
+              <option value="transfer">Transfer</option>
+            </select>
+            {errors.method && (
+              <span className="text-sm text-red-600">
+                Metode Withdraw wajib diisi
+              </span>
             )}
           </div>
           {console.log(selectedData)}
@@ -223,6 +370,8 @@ const Withdraw = () => {
               <th>Tanggal</th>
               <th>Umkm</th>
               <th>Jumlah</th>
+              <th>Status</th>
+              <th>Aksi</th>
             </tr>
           </thead>
           <tbody>
@@ -232,6 +381,21 @@ const Withdraw = () => {
                   <td className="text-center py-5">{item.Date}</td>
                   <td className="text-center">{item.UmkmName}</td>
                   <td className="text-center">Rp {item.Amount}</td>
+                  <td className="text-center">
+                    {item.Status === "process"
+                      ? "Proses"
+                      : item.Status === "done"
+                      ? "Selesai"
+                      : "undefined"}
+                  </td>
+                  <td className="text-center">
+                    <button
+                      onClick={() => handleOnClickDetail(item)}
+                      className="bg-green-400 text-white active:bg-green-400 font-bold uppercase text-xs px-2 py-1 rounded shadow hover:shadow-md outline-none focus:outline-none ease-linear transition-all duration-150 self-auto"
+                    >
+                      Detail
+                    </button>
+                  </td>
                 </tr>
               );
             })}

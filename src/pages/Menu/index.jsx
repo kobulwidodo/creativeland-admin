@@ -5,6 +5,7 @@ import {
   deleteMenu,
   getListMenu,
   updateMenu,
+  uploadMenuImage,
 } from "../../api/models/menu";
 import MenuCard from "../../components/MenuCard";
 import Modal from "../../components/Modal";
@@ -57,6 +58,27 @@ const Menu = () => {
       setShowModalUpdate(false);
     } catch (error) {
       snackbar.error(error.response?.data.meta.message);
+    }
+  };
+
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const res = await uploadMenuImage(
+          userInfo.UmkmID,
+          selectedUpdateData.ID,
+          formData
+        );
+        snackbar.success(res.data.meta.message);
+        setRefreshData(!refreshData); // Trigger a refresh to show the new image
+        setShowModalUpdate(false);
+      } catch (error) {
+        snackbar.error(error.response?.data.meta.message);
+      }
     }
   };
 
@@ -142,6 +164,33 @@ const Menu = () => {
           setShowModalClose={() => setShowModalUpdate(false)}
         >
           <div className="mb-5">
+            <div className="flex flex-col items-center gap-y-5">
+              <img
+                src={
+                  selectedUpdateData.ImgPath
+                    ? `http://localhost:8080/${selectedUpdateData.ImgPath}`
+                    : "https://placehold.co/100"
+                }
+                className="rounded-xl mx-auto object-cover w-44 h-44"
+                alt=""
+              />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+                id="imageUpload"
+              />
+              <label
+                htmlFor="imageUpload"
+                className="bg-green-400 text-white active:bg-green-400 font-bold uppercase text-xs px-2 py-1 rounded shadow hover:shadow-md outline-none focus:outline-none ease-linear transition-all duration-150 cursor-pointer"
+              >
+                Ganti Foto
+              </label>
+            </div>
+          </div>
+          <hr />
+          <div className="my-5">
             <input
               type="text"
               className="px-3 py-3 placeholder-slate-300 text-slate-600 relative bg-white bg-white rounded text-sm border-0 shadow outline-none focus:outline-none focus:ring w-full"
@@ -169,6 +218,31 @@ const Menu = () => {
               })}
             />
           </div>
+          <div className="relative">
+            <select
+              className="appearance-none px-3 py-3 placeholder-slate-300 text-slate-600 relative bg-white bg-white rounded text-sm border-0 shadow outline-none focus:outline-none focus:ring w-full"
+              defaultValue={selectedUpdateData.IsReady}
+              {...register("is_ready", { value: selectedUpdateData.IsReady })}
+            >
+              <option value="true">Tersedia</option>
+              <option value="false">Kosong</option>
+            </select>
+            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+              <svg
+                className="h-5 w-5 text-gray-400"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path
+                  d="M7 7l3-3 3 3m0 6l-3 3-3-3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="1.5"
+                ></path>
+              </svg>
+            </div>
+          </div>
         </Modal>
       ) : null}
       {showModalDelete ? (
@@ -192,17 +266,37 @@ const Menu = () => {
             Tambah Menu
           </button>
         </div>
+        <h3 className="text-lg mb-3">Menu Tersedia</h3>
         {menuData.map((item, key) => {
-          return (
-            <MenuCard
-              onClickEdit={() => handleClickEdit(item)}
-              onClickDelete={() => handleClickDelete(item.ID)}
-              key={key}
-              menuName={item.Name}
-              description={item.Description}
-              pricePerItem={item.Price}
-            />
-          );
+          if (item.IsReady) {
+            return (
+              <MenuCard
+                onClickEdit={() => handleClickEdit(item)}
+                onClickDelete={() => handleClickDelete(item.ID)}
+                key={key}
+                menuName={item.Name}
+                description={item.Description}
+                pricePerItem={item.Price}
+                imgPath={item.ImgPath}
+              />
+            );
+          }
+        })}
+        <h3 className="text-lg mb-3">Menu Kosong</h3>
+        {menuData.map((item, key) => {
+          if (!item.IsReady) {
+            return (
+              <MenuCard
+                onClickEdit={() => handleClickEdit(item)}
+                onClickDelete={() => handleClickDelete(item.ID)}
+                key={key}
+                menuName={item.Name}
+                description={item.Description}
+                pricePerItem={item.Price}
+                imgPath={item.ImgPath}
+              />
+            );
+          }
         })}
       </div>
     </>

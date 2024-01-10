@@ -1,5 +1,9 @@
+import fileDownload from "js-file-download";
 import React, { useEffect, useState } from "react";
-import { getRecapTransaction } from "../../../api/models/transaction";
+import {
+  generateRecapExcelFile,
+  getRecapTransaction,
+} from "../../../api/models/transaction";
 import Modal from "../../../components/Modal";
 import Navbar from "../../../components/Navbar";
 import useSnackbar from "../../../hooks/useSnackbar";
@@ -8,6 +12,7 @@ const SalesRecap = () => {
   const [recapTransaction, setRecapTransaction] = useState([]);
   const [showModalUpdate, setShowModalUpdate] = useState(false);
   const [query, setQuery] = useState("");
+  const [queryExcel, setQueryExcel] = useState("");
   const [selectedData, setSelectedData] = useState({});
   const snackbar = useSnackbar();
 
@@ -15,6 +20,26 @@ const SalesRecap = () => {
     try {
       const res = await getRecapTransaction(query);
       setRecapTransaction(res.data.data);
+    } catch (error) {
+      snackbar.error(error.response?.data.meta.message);
+    }
+  };
+
+  const handleDownloadButton = async () => {
+    try {
+      const res = await generateRecapExcelFile(queryExcel);
+      const contentDisposition = res.headers["content-disposition"];
+      let filename = `rekap-penjualan-${queryExcel}.xlsx`;
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(
+          /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+        );
+        if (filenameMatch.length > 1) {
+          filename = filenameMatch[1].replace(/['"]/g, "");
+        }
+      }
+      fileDownload(res.data, filename);
+      setQueryExcel("");
     } catch (error) {
       snackbar.error(error.response?.data.meta.message);
     }
@@ -47,8 +72,8 @@ const SalesRecap = () => {
               <thead className="border">
                 <tr>
                   <th>Nama</th>
-                  <th>Penjualan Bersih</th>
-                  <th>Penjualan Kotor</th>
+                  <th>Pendapatan Bersih</th>
+                  <th>Pendapatan Kotor</th>
                   <th>Total Order</th>
                 </tr>
               </thead>
@@ -90,8 +115,8 @@ const SalesRecap = () => {
           <thead className="border">
             <tr>
               <th>Tanggal</th>
-              <th>Penjualan Bersih</th>
-              <th>Penjualan Kotor</th>
+              <th>Pendapatan Bersih</th>
+              <th>Pendapatan Kotor</th>
               <th>Aksi</th>
             </tr>
           </thead>
@@ -115,6 +140,24 @@ const SalesRecap = () => {
             })}
           </tbody>
         </table>
+        <hr className="my-7" />
+        <h1 className="text-xl mb-3">Unduh Excel</h1>
+        <div className="flex gap-x-5">
+          <input
+            type="month"
+            name="month"
+            placeholder="Masukan Bulan"
+            className="px-5 py-2 rounded-lg w-full border"
+            onChange={(e) => setQueryExcel(e.target.value)}
+            value={queryExcel}
+          />
+          <button
+            className="bg-green-500 text-white font-medium rounded-xl px-2"
+            onClick={handleDownloadButton}
+          >
+            Unduh
+          </button>
+        </div>
       </div>
     </>
   );

@@ -16,7 +16,7 @@ const TransactionHistory = () => {
 
   const fetchTransaction = async (umkmId) => {
     try {
-      const res = await getTransaction(umkmId, "done", query);
+      const res = await getTransaction(umkmId, ["done", "cancel"], query);
       setTransactionData(res.data.data);
     } catch (error) {
       snackbar.error(error.response?.data.meta.message);
@@ -53,7 +53,11 @@ const TransactionHistory = () => {
             <h4>Notes : {selectedData.notes}</h4>
             <h4>
               Status Pesanan :{" "}
-              {selectedData.status === "done" ? "Selesai" : "?"}
+              {selectedData.status === "done"
+                ? "Selesai"
+                : selectedData.status === "cancel"
+                ? "Dibatalkan"
+                : "?"}
             </h4>
             <h4>Total Harga : Rp {selectedData.price}</h4>
           </div>
